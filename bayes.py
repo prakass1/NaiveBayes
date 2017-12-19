@@ -33,13 +33,13 @@ def splitData(dataset,splitRatio):
 def priorProb(classification,length):
     priorProbablity = {}
     for i in classification:
-        priorProbablity[i]=Decimal(classification[i]/length)
+        priorProbablity[i]= classification[i]/length
         
         
     return priorProbablity
 
 def main():
-    filename = 'car.csv'
+    filename = 'car.csv' 
     splitRatio = 0.75
     dataset = loadCsv(filename)
     trainingData,testData = splitData(dataset, splitRatio)
