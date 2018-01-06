@@ -248,6 +248,6 @@ def main():
 
 
     print("Percentage of errors for the 100 runs " + str((summ_err / 100) * 100))
-    print("average of the last five results is: " +str(mean/5) )
+    print("average errors of the last five results is: " +str(mean/5) )
 
 main()
