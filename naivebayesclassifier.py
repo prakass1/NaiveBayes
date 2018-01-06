@@ -1,7 +1,22 @@
 import random
-from nltk import ConfusionMatrix
 import csv
 
+'''
+A implementation of a Naive Bayesian Classifier using car dataset
+
+    File name: DecisionTree.py
+    Team Members: 
+        Nikhil Murthy (220641)
+        Rutuja Pawar (220051)
+        Subash Prakash (220408)
+    Usage:
+    To run the program, copy the input csv data file (car.data) in the same directory as the 
+    program file, and issue the command "python naivebayesclassifier.py".
+    
+    Environment Tested:
+    PYTHON : 3.6
+
+'''
 
 data = []
 #getting the csv file and converting each row into a unit in a list
@@ -21,7 +36,7 @@ def calcPriorProbablity(priorProbCounts, trainingData, classIndex):
             priorProbCounts[val[classIndex]] = priorProbCounts.get(val[classIndex]) + 1
     return priorProbCounts
 
-#split hte data into 2/3rd of its total to training and testSet
+#split the data into 2/3rd of its total to training and testSet
 def splitData(dataset, splitRatio):
     random.shuffle(dataset)
     trainSet = dataset[:(int)(len(dataset) * splitRatio)]
@@ -55,10 +70,9 @@ def classify(buyingProbablity, maintProbablity, doorsProbablity, personsProbabli
              priorProbablity, testItem):
     bestF = float(-1)
     best = None
-    #calculating Baysian classifier based on individual probabilitiy
+    #calculating Bayesian classifier based on individual probabilities
     for key in priorProbablity.keys():
-        count = 0
-
+        #Returns a default 0 if probablity not present
         pBuying = buyingProbablity.get(key).get(testItem[0], 0.0)
 
         pMaint = maintProbablity.get(key).get(testItem[1], 0.0)
@@ -75,25 +89,21 @@ def classify(buyingProbablity, maintProbablity, doorsProbablity, personsProbabli
 
         p = pPrior * pBuying * pMaint * pDoors * pPersons * pLugBoot * pSafety
 
-
         if (p > bestF):
             bestF = p
             best = key
     return best
 
 
-def calcAttrProbablity(targetClass, val, count):
+def calcAttrProbablity(target, val, count):
     for key, value in val.items():
         value = (value) / (count)
-        #print("Key --> " + str(key) + "Values --> " + str(value))
         val[key] = value
 
 
 def testDataItem(buyingProbablity, maintProbablity, doorsProbablity, personsProbablity, lugBootProbablity, safetyProb,
                  priorProbablity, testData):
     fail = 0.0
-    success = 0.0
-    length = float(len(testData))
     for val in testData:
         if ((
         classify(buyingProbablity, maintProbablity, doorsProbablity, personsProbablity, lugBootProbablity, safetyProb,
@@ -105,12 +115,12 @@ def testDataItem(buyingProbablity, maintProbablity, doorsProbablity, personsProb
     return float((fail / len(testData)))
 
 
+#This prepares to print a confusion matrix
 def outMatrix(matrix,temp):
     for key in matrix.keys():
         key=key.split(",")
     header=""
     row=""
-    #for keys in matrix.keys():
     for i in range(0,len(temp)):
         header=header+"\t"+temp[i]
         row=row+str(temp[i])
@@ -127,6 +137,7 @@ def outMatrix(matrix,temp):
     print(header)
     print(row)
 
+
 #genarating the confusion matrix
 def confusionMatrix(testData,buyingProbablity, maintProbablity, doorsProbablity, personsProbablity, lugBootProbablity, safetyProb,
                  priorProbablity):
@@ -135,7 +146,6 @@ def confusionMatrix(testData,buyingProbablity, maintProbablity, doorsProbablity,
     matrix={}
     predicted = []
     temp=[]
-    i=0
     for item in testData:
         predClass = classify(buyingProbablity, maintProbablity, doorsProbablity, personsProbablity, lugBootProbablity, safetyProb, priorProbablity, item)
         predicted.append(predClass)
@@ -144,19 +154,20 @@ def confusionMatrix(testData,buyingProbablity, maintProbablity, doorsProbablity,
         key = item[6]+ ","+predClass
         if predClass not in temp:
             temp.append(predClass)
-
-
-        #
-      #  #Building a Structure for the count.
+            
+        #Building a Structure for the count.
         if key not in matrix:
-             matrix[key] = 1
+            matrix[key] = 1
 
         else:
             matrix[key] = matrix.get(key) + 1
 
-    #print(matrix)
     return outMatrix(matrix,temp)
 
+
+################
+#Start of main
+################
 def main():
     filename = 'car.csv'
     splitRatio = float(2/3)
@@ -176,8 +187,6 @@ def main():
 
         for val in trainingData:
             file.write(str(val) + "\n")
-
-        attr = {}
         buyingProbablity = {}
         maintProbablity = {}
         doorsProbablity = {}
@@ -186,18 +195,13 @@ def main():
         priorProbCounts = {}
         priorProbablity = {}
         safetyProb = {}
-        #print(len(testData))
-        #print(trainingData[0])
 
         calcPriorProbablity(priorProbCounts, trainingData, classIndex)
-        #print(priorProbCounts)
-        #print(len(trainingData))
-
+    
         priorProb(priorProbablity, priorProbCounts, len(trainingData))
-        #print(priorProbablity)
-        #itterating through each attribute and calculating its prior probability
+        #Go through the attributes and fetch the probablities
         for attribute in attributes:
-            attrCounts = calcAttrCount(trainingData, attributes.index(attribute))
+            #attrCounts = calcAttrCount(trainingData, attributes.index(attribute))
 
             if (attribute == 'buying'):
                 buyingProbablity = calcAttrCount(trainingData, attributes.index(attribute))
@@ -233,19 +237,14 @@ def main():
         summ_err = summ_err + fail
 
 
-        #Calculating the mean average of errors for last five
-
+        #Calculating the mean average of errors for last five runs
         if(k>=95):
             mean = mean+summ_err
-        #Printing the confusion matrix
+            
+        #Printing the confusion matrix on the last run
         if(k==99):
             print("Printing Confusion Matrix")
-            #matrix ,temp= confusionMatrix(testData,buyingProbablity, maintProbablity, doorsProbablity, personsProbablity, lugBootProbablity,safetyProb, priorProbablity)
-
-            #outMatrix(matrix,temp)
             confusionMatrix(testData,buyingProbablity, maintProbablity, doorsProbablity, personsProbablity, lugBootProbablity,safetyProb, priorProbablity)
-            #print(matrix)
-
 
     print("Percentage of errors for the 100 runs " + str((summ_err / 100) * 100))
     print("average errors of the last five results is: " +str(mean/5) )
