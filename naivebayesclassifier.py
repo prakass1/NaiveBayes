@@ -4,7 +4,7 @@ import csv
 '''
 A implementation of a Naive Bayesian Classifier using car dataset
 
-    File name: DecisionTree.py
+    File name: naivebayesclassifier.py
     Team Members: 
         Nikhil Murthy (220641)
         Rutuja Pawar (220051)
